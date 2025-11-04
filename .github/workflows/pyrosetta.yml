@@ -78,7 +78,7 @@ jobs:
         run: |
           export PATH="$HOME/.local/bin:$PATH"
           cd pyrosetta_uv_project
-          uv pip install pyrosetta-installer
+          uv pip install pyrosetta-installer pip
 
       - name: Install PyRosetta via installer in uv project
         run: |
