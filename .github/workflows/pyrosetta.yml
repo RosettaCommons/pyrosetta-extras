@@ -68,6 +68,12 @@ jobs:
           export PATH="$HOME/.local/bin:$PATH"
           uv init pyrosetta_uv_project
 
+      - name: Create uv virtual environment
+        run: |
+          export PATH="$HOME/.local/bin:$PATH"
+          cd pyrosetta_uv_project
+          uv venv
+
       - name: Install PyRosetta dependencies
         run: |
           export PATH="$HOME/.local/bin:$PATH"
