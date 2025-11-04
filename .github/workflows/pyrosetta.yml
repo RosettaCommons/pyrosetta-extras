@@ -74,10 +74,11 @@ jobs:
           cd pyrosetta_uv_project
           uv venv
 
-      - name: Install PyRosetta dependencies
+      - name: Install PyRosetta installer
         run: |
           export PATH="$HOME/.local/bin:$PATH"
           cd pyrosetta_uv_project
+          # Note: 'pip' is a required dependency of 'pyrosetta-installer'
           uv pip install pyrosetta-installer pip
 
       - name: Install PyRosetta via installer in uv project
@@ -107,9 +108,6 @@ jobs:
         run: |
           export PATH="$HOME/.local/bin:$PATH"
           cd pyrosetta_uv_project
-          uv run python -c "import sys; print(sys.path)"
-          uv run python -c "import sys; print(sys.executable)"
-          uv run python -m site
           uv run python -u -m unittest pyrosetta.tests.distributed.cluster.test_reproducibility.TestEnvironmentReproducibility.test_recreate_environment_uv -v
 
   # ============================================================
