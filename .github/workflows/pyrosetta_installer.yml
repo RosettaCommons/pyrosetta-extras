@@ -59,7 +59,7 @@ jobs:
       - name: Install PyRosetta using pyrosetta_installer
         run: |
           pip install --no-cache-dir pyrosetta_installer
-          python -c 'import pyrosetta_installer; pyrosetta_installer.install_pyrosetta(mirror=${{ matrix.mirror.mirror }}, distributed=${{ matrix.mirror.distributed }}, type="${{ matrix.mirror.type }}")'
+          python -c 'import pyrosetta_installer; pyrosetta_installer.install_pyrosetta(mirror=${{ matrix.mirror.mirror }}, distributed=${{ matrix.flavor.distributed }}, type="${{ matrix.flavor.type }}")'
 
       - name: Sanity check import + init
         run: |
