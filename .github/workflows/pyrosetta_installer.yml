@@ -7,7 +7,7 @@ on:
 
 jobs:
   install:
-    name: ${{ matrix.os.os_name }} / py${{ matrix.python }} / ${{ matrix.flavor }} / ${{ matrix.mirror.name }}
+    name: ${{ matrix.os.os_name }} / py${{ matrix.python }} / ${{ matrix.flavor.name }} / ${{ matrix.mirror.name }}
     runs-on: ${{ matrix.os.runs_on }}
 
     strategy:
