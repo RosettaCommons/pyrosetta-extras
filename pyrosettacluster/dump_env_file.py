@@ -10,7 +10,7 @@ __author__ = "Jason C. Klima"
 
 import argparse
 import pyrosetta
-import pyrosetta.distributed
+import pyrosetta.distributed.io as io
 import os
 
 from datetime import datetime
@@ -46,14 +46,19 @@ def main(
     """
     Dump the PyRosettaCluster environment file(s) based on metadata from a PyRosettaCluster result.
     """
-    if (
-        isinstance(input_file, str)
-        and input_file.endswith((".pkl_pose", ".pkl_pose.bz2", ".b64_pose", ".b64_pose.bz2"))
-    ):
-        if pyrosetta_init_flags:
-            pyrosetta.init(options="", extra_options=pyrosetta_init_flags, silent=True)
-        else:
-            pyrosetta.init(options="", extra_options="-run:constant_seed 1 -out:level 200", silent=True)
+    if isinstance(input_file, str):
+        if input_file.endswith((".pkl_pose", ".pkl_pose.bz2", ".b64_pose", ".b64_pose.bz2")):
+            if pyrosetta_init_flags:
+                pyrosetta.init(options="", extra_options=pyrosetta_init_flags, silent=True)
+            else:
+                pyrosetta.init(options="", extra_options="-run:constant_seed 1 -out:level 200", silent=True)
+        elif input_file.endswith((".init", ".init.bz2")):
+            if io.read_init_file(input_file)["pyrosetta_build"] != pyrosetta._build_signature():
+                print(
+                    f"[WARNING] The PyRosetta build signature differs from the build signature that wrote the "
+                    "input PyRosetta initialization file! Continuing to extract the environment file anyway..."
+                )
+            io.init_from_file(input_file)
 
     if (
         isinstance(scorefile, str)
