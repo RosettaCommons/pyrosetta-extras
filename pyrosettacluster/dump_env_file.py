@@ -53,6 +53,11 @@ def main(
             else:
                 pyrosetta.init(options="", extra_options="-run:constant_seed 1 -out:level 200", silent=True)
         elif input_file.endswith((".init", ".init.bz2")):
+            if io.read_init_file(input_file)["pyrosetta_build"] != pyrosetta._build_signature():
+                print(
+                    f"[WARNING] The PyRosetta build signature differs from the build signature that wrote the "
+                    "input PyRosetta initialization file! Continuing to extract the environment file anyway..."
+                )
             io.init_from_file(input_file)
 
     if (
