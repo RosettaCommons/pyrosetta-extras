@@ -8,6 +8,7 @@ version = "1.0.0"
 pyrosetta = "*"
 
 [pypi-dependencies]
+decorator = "*"
 pyrosetta-distributed = "*"
 
 [feature.{py_feature}.dependencies]
