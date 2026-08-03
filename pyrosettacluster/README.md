@@ -21,7 +21,7 @@
 <a name="creating-environments-for-pyrosettacluster"></a>
 # 🏠 Creating Environments for *PyRosettaCluster*
 The *PyRosettaCluster* framework supports running reproducible PyRosetta simulations from reproducible virtual environments created with [*Conda*](https://docs.conda.io/), [*Mamba*](https://mamba.readthedocs.io/), [*uv*](https://docs.astral.sh/uv/), and [*Pixi*](https://pixi.sh/) environment managers. Please install [PyRosetta](https://www.pyrosetta.org/downloads) (with `cxx11thread.serialization` support) and the following packages to get started (and see the [envs](envs) directory for template environment configuration files)!
-- `attrs`, `billiard`, `blosc`, `cloudpickle`, `cryptography`, `dask`, `dask-jobqueue`, `distributed`, `gitpython`, `numpy`, `pandas`, `python-xz`, `scipy`, `traitlets`
+- `attrs`, `billiard`, `blosc`, `cloudpickle`, `cryptography`, `dask`, `dask-jobqueue`, `decorator`, `distributed`, `gitpython`, `numpy`, `pandas`, `python-xz`, `scipy`, `traitlets`
 
 [Official Full List of Packages](https://github.com/RosettaCommons/rosetta/blob/main/tests/benchmark/tests/__init__.py#L69-L84)
 
