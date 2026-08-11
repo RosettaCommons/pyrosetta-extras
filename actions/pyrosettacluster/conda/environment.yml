@@ -7,5 +7,4 @@ dependencies:
   - pyrosetta
   - pip
   - pip:
-    - decorator
-    - pyrosetta-distributed
+    - pyrosetta-distributed>=0.0.5
