@@ -9,6 +9,7 @@ __author__ = "Jason C. Klima"
 
 
 import argparse
+import json
 import pyrosetta
 import pyrosetta.distributed.io as io
 import os
@@ -95,6 +96,7 @@ def main(
     toml = metadata_kwargs.get("toml")
     toml_format = metadata_kwargs.get("toml_format")
     env_manager = metadata_kwargs.get("environment_manager")  # may be `None` in legacy cases
+    env_manager_version = metadata_kwargs.get("environment_manager_version")  # may be `None` in legacy cases
 
     sha1 = instance_kwargs.get("sha1")
     print("[INFO] " + "-" * 72)
@@ -144,6 +146,16 @@ def main(
             f"Writing '{os.path.basename(env_file)}' file.",
         )
         write_file(env_file, environment)
+
+    # Maybe write environment manager version file; legacy fallback doesn't write
+    if env_manager is not None:
+        env_metadata_json_file = os.path.join(env_dir, "environment_metadata.json")
+        env_metadata_dict = {
+            "environment_manager": env_manager,
+            "environment_manager_version": env_manager_version,
+        }
+        env_metadata = json.dumps(env_metadata_dict, indent=2, sort_keys=True)
+        write_file(env_metadata_json_file, env_metadata)
 
 
 def write_file(path: str, content: str) -> None:

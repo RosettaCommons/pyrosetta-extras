@@ -8,7 +8,7 @@ version = "1.0.0"
 pyrosetta = "*"
 
 [pypi-dependencies]
-pyrosetta-distributed = "*"
+pyrosetta-distributed = ">=0.0.5"
 
 [feature.{py_feature}.dependencies]
 python = "{py_version}"

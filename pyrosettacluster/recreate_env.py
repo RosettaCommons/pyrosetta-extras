@@ -21,8 +21,10 @@ __author__ = "Jason C. Klima"
 
 
 import argparse
+import json
 import os
 import re
+import shlex
 import shutil
 import subprocess
 import tempfile
@@ -62,6 +64,32 @@ def run_subprocess(
         raise RuntimeError(cmd) from ex
 
 
+def get_env_manager_version(env_manager: str) -> str:
+    """Return the version of the given environment manager."""
+
+    cmd = [env_manager, "--version"]
+    try:
+        output = subprocess.check_output(
+            cmd,
+            text=True,
+            stderr=subprocess.STDOUT,
+        ).strip()
+    except (FileNotFoundError, subprocess.CalledProcessError):
+        version = ""
+    else:
+        found = re.search(r"v?(\d+(?:\.\d+)+)", output)
+        version = found.group(1) if found else ""
+
+    if not version:
+        cmd_str = shlex.join(cmd)
+        print(
+            f"[WARNING] Could not determine the {env_manager} environment manager "
+            f"version from running `{cmd_str}`."
+        )
+
+    return version
+
+
 def uv_lock_package_present(lock_file: str, name: str) -> bool:
     """Test if a package name is specified in an input 'uv.lock' file."""
 
@@ -83,6 +111,60 @@ def recreate_environment(env_dir: str, env_manager: str, timeout: float, mirror_
     Recreate an environment using Pixi, uv, Conda, or Mamba inside `env_dir`.
     The directory must already exist.
     """
+
+    env_metadata_json_file = os.path.join(env_dir, "environment_metadata.json")
+    if os.path.isfile(env_metadata_json_file):
+        try:
+            with open(env_metadata_json_file) as f:
+                env_metadata = json.load(f)
+        except (OSError, json.JSONDecodeError):
+            print(
+                "[WARNING] Could not read the `environment_metadata.json` file. "
+                "Skipping environment manager validation!"
+            )
+        else:
+            original_env_manager = env_metadata.get("environment_manager")
+            original_env_manager_version = env_metadata.get("environment_manager_version")
+            if env_manager != original_env_manager:
+                raise ValueError(
+                    f"The environment manager used for the original `PyRosettaCluster` simulation was '{original_env_manager}', "
+                    f"but the current environment manager is configured to be '{env_manager}'. Please run "
+                    f"`export PYROSETTACLUSTER_ENVIRONMENT_MANAGER={original_env_manager}` or pass the "
+                    f"`--env_manager {original_env_manager}` flag to continue."
+                )
+            if env_manager in ("pixi", "uv"):
+                env_manager_version = get_env_manager_version(env_manager)
+                if not env_manager_version and not original_env_manager_version:
+                    print(
+                        f"[WARNING] Skipping environment manager version check! The original {original_env_manager} version "
+                        f"was not captured in the `PyRosettaCluster` full simulation record, and the currently installed {env_manager} "
+                        f"version cannot be determined either. Please ensure that the {env_manager} version is identical to that "
+                        "used to generate the original `PyRosettaCluster` result (if documented outside the full simulation record), "
+                        "otherwise downstream `PyRosettaCluster` environment validation may fail even if the resolved dependencies "
+                        "are equivalent due to differences in the generated lockfile format."
+                    )
+                elif not env_manager_version and original_env_manager_version:
+                    print(
+                        f"[WARNING] Skipping environment manager version check! Please ensure that the currently installed {env_manager} "
+                        f"version is version {original_env_manager_version}, otherwise downstream `PyRosettaCluster` environment validation"
+                        "may fail even if the resolved dependencies are equivalent due to differences in the generated lockfile format."
+                    )
+                elif env_manager_version and not original_env_manager_version:
+                    print(
+                        f"[WARNING] Skipping environment manager version check! The original {original_env_manager} version "
+                        f"was not captured in the `PyRosettaCluster` full simulation record. Please ensure that the {env_manager} "
+                        "version is identical to that used to generate the original `PyRosettaCluster` result (if documented "
+                        "outside the full simulation record), otherwise downstream `PyRosettaCluster` environment validation may fail "
+                        "even if the resolved dependencies are equivalent due to differences in the generated lockfile format."
+                    )
+                elif env_manager_version != original_env_manager_version:
+                    print(
+                        f"[WARNING] The original {original_env_manager} version {original_env_manager_version} was used to generate "
+                        f"the `PyRosettaCluster` result, but the currently installed {env_manager} version is {env_manager_version}. "
+                        f"It is highly recommended to install {env_manager} version {original_env_manager_version} before continuing, "
+                        "otherwise downstream `PyRosettaCluster` environment validation may fail even if the resolved dependencies are "
+                        "equivalent due to differences in the generated lockfile format."
+                    )
 
     if env_manager == "pixi":
         lock_file = os.path.join(env_dir, "pixi.lock")
